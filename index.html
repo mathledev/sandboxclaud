@@ -63,6 +63,28 @@
     }
   }
 
+  /* Nuage décoratif en fond de page */
+  .fond-nuage {
+    position: fixed;
+    bottom: -8rem;
+    left: -10rem;
+    width: 30rem;
+    height: 18rem;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 620px) {
+    .fond-nuage {
+      width: 20rem;
+      height: 12rem;
+      bottom: -5rem;
+      left: -7rem;
+      opacity: 0.6;
+    }
+  }
+
   main {
     max-width: 760px;
     margin: 0 auto;
@@ -404,6 +426,28 @@
   </g>
 
   <circle cx="200" cy="200" r="30" fill="url(#disque)"/>
+</svg>
+<svg class="fond-nuage" viewBox="0 0 480 280" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="nuage-grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#e8eef6" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="nuage-grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f0f4fa" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#d9e0ea" stop-opacity="0.3"/>
+    </linearGradient>
+    <filter id="nuage-ombre">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- Nuage principal composé de cercles/ellipses -->
+  <ellipse cx="120" cy="140" rx="70" ry="55" fill="url(#nuage-grad1)" filter="url(#nuage-ombre)"/>
+  <ellipse cx="220" cy="120" rx="85" ry="60" fill="url(#nuage-grad1)" filter="url(#nuage-ombre)"/>
+  <ellipse cx="340" cy="140" rx="70" ry="55" fill="url(#nuage-grad1)" filter="url(#nuage-ombre)"/>
+  <ellipse cx="50" cy="180" rx="60" ry="45" fill="url(#nuage-grad2)" filter="url(#nuage-ombre)"/>
+  <ellipse cx="400" cy="180" rx="65" ry="50" fill="url(#nuage-grad2)" filter="url(#nuage-ombre)"/>
 </svg>
 <main>
   <h1>Coût d'encaissement carte</h1>
