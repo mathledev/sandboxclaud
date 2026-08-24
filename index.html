@@ -20,12 +20,47 @@
 
   * { box-sizing: border-box; }
 
+  html {
+    background: var(--bg);
+  }
+
   body {
     margin: 0;
-    background: var(--bg);
+    background: transparent;
     color: var(--text);
     padding: 2rem 1rem 4rem;
     line-height: 1.4;
+  }
+
+  /* Soleil décoratif en fond de page (SVG inline, aucune image externe) */
+  .fond-soleil {
+    position: fixed;
+    top: -9rem;
+    right: -9rem;
+    width: 32rem;
+    height: 32rem;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fond-soleil .rayons {
+      animation: rotation-rayons 300s linear infinite;
+      transform-origin: 200px 200px;
+    }
+  }
+
+  @keyframes rotation-rayons {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 620px) {
+    .fond-soleil {
+      width: 20rem;
+      height: 20rem;
+      top: -6rem;
+      right: -6rem;
+    }
   }
 
   main {
@@ -317,6 +352,59 @@
 </style>
 </head>
 <body>
+<svg class="fond-soleil" viewBox="0 0 400 400" aria-hidden="true" focusable="false">
+  <defs>
+    <radialGradient id="halo">
+      <stop offset="0%" stop-color="#ffb703" stop-opacity="0.30"/>
+      <stop offset="35%" stop-color="#ffc94d" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#ffd98a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fondu">
+      <stop offset="10%" stop-color="#fff" stop-opacity="0.85"/>
+      <stop offset="55%" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="disque">
+      <stop offset="0%" stop-color="#ffd85e"/>
+      <stop offset="70%" stop-color="#ffc42e"/>
+      <stop offset="100%" stop-color="#f7ad12"/>
+    </radialGradient>
+    <mask id="masque-rayons">
+      <rect x="0" y="0" width="400" height="400" fill="url(#fondu)"/>
+    </mask>
+  </defs>
+
+  <circle cx="200" cy="200" r="200" fill="url(#halo)"/>
+
+  <g class="rayons" mask="url(#masque-rayons)" fill="#ffb703" fill-opacity="0.55">
+      <polygon points="196.6,166.0 199.1,10.0 200.9,10.0 203.4,166.0"/>
+      <polygon points="205.5,166.3 238.5,52.9 240.2,53.4 212.1,168.0"/>
+      <polygon points="214.1,168.9 294.2,35.0 295.8,35.9 219.9,172.3"/>
+      <polygon points="221.6,173.6 306.8,91.9 308.1,93.2 226.4,178.4"/>
+      <polygon points="227.7,180.1 364.1,104.2 365.0,105.8 231.1,185.9"/>
+      <polygon points="232.0,187.9 346.6,159.8 347.1,161.5 233.7,194.5"/>
+      <polygon points="234.0,196.6 390.0,199.1 390.0,200.9 234.0,203.4"/>
+      <polygon points="233.7,205.5 347.1,238.5 346.6,240.2 232.0,212.1"/>
+      <polygon points="231.1,214.1 365.0,294.2 364.1,295.8 227.7,219.9"/>
+      <polygon points="226.4,221.6 308.1,306.8 306.8,308.1 221.6,226.4"/>
+      <polygon points="219.9,227.7 295.8,364.1 294.2,365.0 214.1,231.1"/>
+      <polygon points="212.1,232.0 240.2,346.6 238.5,347.1 205.5,233.7"/>
+      <polygon points="203.4,234.0 200.9,390.0 199.1,390.0 196.6,234.0"/>
+      <polygon points="194.5,233.7 161.5,347.1 159.8,346.6 187.9,232.0"/>
+      <polygon points="185.9,231.1 105.8,365.0 104.2,364.1 180.1,227.7"/>
+      <polygon points="178.4,226.4 93.2,308.1 91.9,306.8 173.6,221.6"/>
+      <polygon points="172.3,219.9 35.9,295.8 35.0,294.2 168.9,214.1"/>
+      <polygon points="168.0,212.1 53.4,240.2 52.9,238.5 166.3,205.5"/>
+      <polygon points="166.0,203.4 10.0,200.9 10.0,199.1 166.0,196.6"/>
+      <polygon points="166.3,194.5 52.9,161.5 53.4,159.8 168.0,187.9"/>
+      <polygon points="168.9,185.9 35.0,105.8 35.9,104.2 172.3,180.1"/>
+      <polygon points="173.6,178.4 91.9,93.2 93.2,91.9 178.4,173.6"/>
+      <polygon points="180.1,172.3 104.2,35.9 105.8,35.0 185.9,168.9"/>
+      <polygon points="187.9,168.0 159.8,53.4 161.5,52.9 194.5,166.3"/>
+  </g>
+
+  <circle cx="200" cy="200" r="30" fill="url(#disque)"/>
+</svg>
 <main>
   <h1>Coût d'encaissement carte</h1>
   <p class="subtitle">Calcul de la commission et du montant net perçu par le commerçant.</p>
