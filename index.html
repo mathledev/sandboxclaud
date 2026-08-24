@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur de coût d'encaissement carte</title>
+<style>
+  :root {
+    --bg: #f4f6fa;
+    --panel: #ffffff;
+    --border: #d9e0ea;
+    --text: #b01818;
+    --text-muted: #c95f5f;
+    --accent: #1d4e8c;
+    --accent-light: #e7eef8;
+    --danger: #8a3b3b;
+    --danger-light: #f5e9e9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem 1rem 4rem;
+    line-height: 1.4;
+  }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0 0 1.75rem;
+  }
+
+  section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  section h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 1.1rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  @media (max-width: 620px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--panel);
+  }
+
+  .results {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  @media (max-width: 620px) {
+    .results { grid-template-columns: 1fr; }
+  }
+
+  .result-box {
+    border-radius: 6px;
+    padding: 0.9rem 1rem;
+  }
+
+  .result-box.commission {
+    background: var(--danger-light);
+  }
+
+  .result-box.net {
+    background: var(--accent-light);
+  }
+
+  .result-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .result-value {
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .result-box.commission .result-value { color: var(--danger); }
+  .result-box.net .result-value { color: var(--accent); }
+
+  .add-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.1rem;
+  }
+
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  button.secondary {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    text-align: right;
+    padding: 0.55rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th:first-child, td:first-child {
+    text-align: left;
+  }
+
+  th {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  tfoot td {
+    font-weight: 600;
+    border-bottom: none;
+    border-top: 2px solid var(--text);
+  }
+
+  .empty-state {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1.5rem 0;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .meteo-form {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 620px) {
+    .meteo-form { flex-direction: column; }
+  }
+
+  .meteo-form input[type="text"] {
+    flex: 1;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .meteo-form input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--panel);
+  }
+
+  .meteo-loading,
+  .meteo-placeholder {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 1.1rem;
+  }
+
+  .meteo-error {
+    background: var(--danger-light);
+    color: var(--danger);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-top: 1.1rem;
+    font-size: 0.9rem;
+  }
+
+  .meteo-current {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--accent-light);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-top: 1.1rem;
+  }
+
+  .meteo-current .meteo-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+
+  .meteo-current-ville {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .meteo-current-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .meteo-current-temp {
+    margin-left: auto;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .meteo-forecast {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 620px) {
+    .meteo-forecast { grid-template-columns: 1fr; }
+  }
+
+  .meteo-day {
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.85rem 0.5rem;
+  }
+
+  .meteo-day-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: capitalize;
+    margin-bottom: 0.35rem;
+  }
+
+  .meteo-day-icon {
+    font-size: 1.7rem;
+    line-height: 1;
+    margin-bottom: 0.35rem;
+  }
+
+  .meteo-day-temps {
+    font-size: 0.9rem;
+  }
+
+  .meteo-day-temps .max {
+    font-weight: 600;
+  }
+
+  .meteo-day-temps .min {
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Coût d'encaissement carte</h1>
+  <p class="subtitle">Calcul de la commission et du montant net perçu par le commerçant.</p>
+
+  <section>
+    <h2>Météo</h2>
+    <form class="meteo-form" id="meteoForm">
+      <input type="text" id="ville" placeholder="Nom de la ville" autocomplete="off">
+      <button type="submit">Rechercher</button>
+    </form>
+    <div id="meteoResultat"></div>
+  </section>
+
+  <section>
+    <h2>Nouvelle transaction</h2>
+    <div class="form-grid">
+      <div>
+        <label for="montant">Montant de la transaction (€)</label>
+        <input type="number" id="montant" step="0.01" min="0" placeholder="0,00">
+      </div>
+      <div>
+        <label for="taux">Taux de commission (%)</label>
+        <input type="number" id="taux" step="0.01" min="0" placeholder="0,00">
+      </div>
+      <div>
+        <label for="fixe">Frais fixe par transaction (€)</label>
+        <input type="number" id="fixe" step="0.01" min="0" placeholder="0,00">
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="result-box commission">
+        <div class="result-label">Commission prélevée</div>
+        <div class="result-value" id="resultCommission">0,00 €</div>
+      </div>
+      <div class="result-box net">
+        <div class="result-label">Montant net reçu</div>
+        <div class="result-value" id="resultNet">0,00 €</div>
+      </div>
+    </div>
+
+    <div class="add-row">
+      <button id="btnAjouter" type="button">Ajouter la transaction</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Transactions enregistrées</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Montant</th>
+            <th>Taux</th>
+            <th>Frais fixe</th>
+            <th>Commission</th>
+            <th>Net reçu</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="1">Total</td>
+            <td id="totalMontant">0,00 €</td>
+            <td></td>
+            <td></td>
+            <td id="totalCommission">0,00 €</td>
+            <td id="totalNet">0,00 €</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="empty-state" id="emptyState">Aucune transaction enregistrée.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+  const WEATHER_CODES = {
+    0: { desc: 'Ciel dégagé', icon: '☀️' },
+    1: { desc: 'Plutôt dégagé', icon: '🌤️' },
+    2: { desc: 'Partiellement nuageux', icon: '⛅' },
+    3: { desc: 'Couvert', icon: '☁️' },
+    45: { desc: 'Brouillard', icon: '🌫️' },
+    48: { desc: 'Brouillard givrant', icon: '🌫️' },
+    51: { desc: 'Bruine légère', icon: '🌦️' },
+    53: { desc: 'Bruine modérée', icon: '🌦️' },
+    55: { desc: 'Bruine dense', icon: '🌦️' },
+    56: { desc: 'Bruine verglaçante', icon: '🌧️' },
+    57: { desc: 'Bruine verglaçante dense', icon: '🌧️' },
+    61: { desc: 'Pluie faible', icon: '🌧️' },
+    63: { desc: 'Pluie modérée', icon: '🌧️' },
+    65: { desc: 'Pluie forte', icon: '🌧️' },
+    66: { desc: 'Pluie verglaçante', icon: '🌧️' },
+    67: { desc: 'Pluie verglaçante forte', icon: '🌧️' },
+    71: { desc: 'Neige faible', icon: '🌨️' },
+    73: { desc: 'Neige modérée', icon: '🌨️' },
+    75: { desc: 'Neige forte', icon: '🌨️' },
+    77: { desc: 'Neige en grains', icon: '🌨️' },
+    80: { desc: 'Averses faibles', icon: '🌦️' },
+    81: { desc: 'Averses modérées', icon: '🌦️' },
+    82: { desc: 'Averses violentes', icon: '⛈️' },
+    85: { desc: 'Averses de neige faibles', icon: '🌨️' },
+    86: { desc: 'Averses de neige fortes', icon: '🌨️' },
+    95: { desc: 'Orage', icon: '⛈️' },
+    96: { desc: 'Orage avec grêle légère', icon: '⛈️' },
+    99: { desc: 'Orage avec grêle forte', icon: '⛈️' },
+  };
+
+  function describeWeather(code) {
+    return WEATHER_CODES[code] || { desc: 'Conditions inconnues', icon: '❓' };
+  }
+
+  const meteoForm = document.getElementById('meteoForm');
+  const villeInput = document.getElementById('ville');
+  const meteoResultatEl = document.getElementById('meteoResultat');
+
+  function afficherMeteoChargement() {
+    meteoResultatEl.innerHTML = '<p class="meteo-loading">Recherche en cours…</p>';
+  }
+
+  function afficherMeteoErreur(message) {
+    meteoResultatEl.innerHTML = `<p class="meteo-error">${message}</p>`;
+  }
+
+  function afficherMeteoResultat(lieu, actuelle, prochainsJours) {
+    const actuelleInfo = describeWeather(actuelle.weather_code);
+
+    const joursHtml = prochainsJours.map((jour) => {
+      const info = describeWeather(jour.weather_code);
+      const label = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date(jour.date + 'T00:00:00'));
+      return `
+        <div class="meteo-day">
+          <div class="meteo-day-label">${label}</div>
+          <div class="meteo-day-icon">${info.icon}</div>
+          <div class="meteo-day-temps">
+            <span class="max">${Math.round(jour.temp_max)}°</span>
+            <span class="min">/ ${Math.round(jour.temp_min)}°</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    meteoResultatEl.innerHTML = `
+      <div class="meteo-current">
+        <div class="meteo-icon">${actuelleInfo.icon}</div>
+        <div>
+          <div class="meteo-current-ville">${lieu}</div>
+          <div class="meteo-current-desc">${actuelleInfo.desc}</div>
+        </div>
+        <div class="meteo-current-temp">${Math.round(actuelle.temperature)}°</div>
+      </div>
+      <div class="meteo-forecast">${joursHtml}</div>
+    `;
+  }
+
+  async function rechercherMeteo(ville) {
+    let geoData;
+    try {
+      const geoResponse = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(ville)}&count=1&language=fr&format=json`
+      );
+      if (!geoResponse.ok) throw new Error('geo-ko');
+      geoData = await geoResponse.json();
+    } catch (err) {
+      afficherMeteoErreur('Impossible de récupérer la météo : vérifiez votre connexion internet.');
+      return;
+    }
+
+    if (!geoData.results || geoData.results.length === 0) {
+      afficherMeteoErreur('Ville introuvable. Vérifiez l\'orthographe et réessayez.');
+      return;
+    }
+
+    const { latitude, longitude, name, country } = geoData.results[0];
+
+    let forecastData;
+    try {
+      const forecastResponse = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4`
+      );
+      if (!forecastResponse.ok) throw new Error('forecast-ko');
+      forecastData = await forecastResponse.json();
+    } catch (err) {
+      afficherMeteoErreur('Impossible de récupérer la météo : vérifiez votre connexion internet.');
+      return;
+    }
+
+    const actuelle = {
+      temperature: forecastData.current.temperature_2m,
+      weather_code: forecastData.current.weather_code,
+    };
+
+    const prochainsJours = forecastData.daily.time.slice(1, 4).map((date, i) => ({
+      date,
+      weather_code: forecastData.daily.weather_code[i + 1],
+      temp_max: forecastData.daily.temperature_2m_max[i + 1],
+      temp_min: forecastData.daily.temperature_2m_min[i + 1],
+    }));
+
+    const lieu = country ? `${name}, ${country}` : name;
+    afficherMeteoResultat(lieu, actuelle, prochainsJours);
+  }
+
+  meteoForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ville = villeInput.value.trim();
+    if (!ville) {
+      villeInput.focus();
+      return;
+    }
+    afficherMeteoChargement();
+    rechercherMeteo(ville);
+  });
+
+  const montantInput = document.getElementById('montant');
+  const tauxInput = document.getElementById('taux');
+  const fixeInput = document.getElementById('fixe');
+  const resultCommission = document.getElementById('resultCommission');
+  const resultNet = document.getElementById('resultNet');
+  const btnAjouter = document.getElementById('btnAjouter');
+  const tableBody = document.getElementById('tableBody');
+  const emptyState = document.getElementById('emptyState');
+  const totalMontant = document.getElementById('totalMontant');
+  const totalCommission = document.getElementById('totalCommission');
+  const totalNet = document.getElementById('totalNet');
+
+  const formatEuros = (value) =>
+    value.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+  const transactions = [];
+
+  function computeCurrent() {
+    const montant = parseFloat(montantInput.value) || 0;
+    const taux = parseFloat(tauxInput.value) || 0;
+    const fixe = parseFloat(fixeInput.value) || 0;
+    const commission = montant * (taux / 100) + fixe;
+    const net = montant - commission;
+    return { montant, taux, fixe, commission, net };
+  }
+
+  function updateResults() {
+    const { commission, net } = computeCurrent();
+    resultCommission.textContent = formatEuros(commission);
+    resultNet.textContent = formatEuros(net);
+  }
+
+  function renderTable() {
+    tableBody.innerHTML = '';
+    emptyState.style.display = transactions.length === 0 ? 'block' : 'none';
+
+    let sumMontant = 0, sumCommission = 0, sumNet = 0;
+
+    transactions.forEach((t, index) => {
+      sumMontant += t.montant;
+      sumCommission += t.commission;
+      sumNet += t.net;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${formatEuros(t.montant)}</td>
+        <td>${t.taux.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} %</td>
+        <td>${formatEuros(t.fixe)}</td>
+        <td>${formatEuros(t.commission)}</td>
+        <td>${formatEuros(t.net)}</td>
+        <td><button class="secondary" data-index="${index}">Supprimer</button></td>
+      `;
+      tableBody.appendChild(tr);
+    });
+
+    totalMontant.textContent = formatEuros(sumMontant);
+    totalCommission.textContent = formatEuros(sumCommission);
+    totalNet.textContent = formatEuros(sumNet);
+  }
+
+  tableBody.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-index]');
+    if (!btn) return;
+    const idx = parseInt(btn.dataset.index, 10);
+    transactions.splice(idx, 1);
+    renderTable();
+  });
+
+  btnAjouter.addEventListener('click', () => {
+    const data = computeCurrent();
+    if (data.montant <= 0) {
+      montantInput.focus();
+      return;
+    }
+    transactions.push(data);
+    renderTable();
+  });
+
+  [montantInput, tauxInput, fixeInput].forEach((input) => {
+    input.addEventListener('input', updateResults);
+  });
+
+  updateResults();
+  renderTable();
+</script>
+</body>
+</html>
